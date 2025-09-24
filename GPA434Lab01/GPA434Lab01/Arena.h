@@ -49,8 +49,8 @@ public:
 	~Arena();
 
 	// Fonction utilitaires
-	ezgame::Vect2d restrictedPosition(ezgame::Vect2d const& position);
-	ezgame::Vect2d warpedPosition(ezgame::Vect2d const& position);
+	ezgame::Vect2d restrictedPosition(ezgame::Vect2d const& position) const;
+	ezgame::Vect2d warpedPosition(ezgame::Vect2d const& position) const;
 	void tic(ezgame::Timer &elapsedTime);
 		
 	// Fonction de dessin:

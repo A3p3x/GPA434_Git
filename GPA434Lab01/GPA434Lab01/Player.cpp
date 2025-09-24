@@ -56,34 +56,44 @@ Player::BorderManagement Player::borderManagement() const
 	return mBorderManagement;
 }
 
-bool Player::isColliding(ezgame::Circle const otherCircle) const
+
+										// & const ERREUR
+bool Player::isColliding(ezgame::Circle const& otherCircle) const
 {
 	return mPlayerShape.isColliding(otherCircle);
 }
 
 bool Player::isColliding(Player const& player) const
 {
-	//return isColliding(mPlayerShape);
+	// return isColliding(mPlayerShape);
 	return mPlayerShape.isColliding(player.mPlayerShape);
 }
 
-bool Player::isColliding(Dome& const dome) const
+bool Player::isColliding(Dome const& dome) const
 {
 	return mPlayerShape.isColliding(dome.circle());
 }
 
 void Player::tic(ezgame::Keyboard const& keyboard, float elapsedTime, Arena const& arena)
 {
-	ezgame::Vect2d vecteurVitesse(0.0,0.0);
-	
+	// Récupérer la direction à partir du clavier
+	ezgame::Vect2d direction = mDirectionKeyMapping.directionFromKeyboard(keyboard);
+	// Calculer le déplacement
+	ezgame::Vect2d delta = direction * mDefaultPlayerSpeed * elapsedTime;
+	// Mettre à jour la position du joueur
+	ezgame::Vect2d nextPos = mPlayerShape.position() + delta;
+
 	if (mRole == Player::Role::Defender) {
-		mTimeAsDefender += elapsedTime;
-		Player::mSpeed = DirectionKeyMapping::directionFromKeyboard(keyboard) * mDefaultPlayerSpeed;
 		
-	}
-	else if (mRole == Player::Role::Contender) {
-		mTimeAsContender += elapsedTime;
-		// a continuer
+		if (mBorderManagement == BorderManagement::Restrict) {
+			nextPos = arena.restrictedPosition(nextPos);
+		}
+		else if (mBorderManagement == BorderManagement::Warping) {
+			nextPos = arena.warpedPosition(nextPos);
+		}
+
+		// Mettre à jour la position
+		mPlayerShape.setPosition(nextPos);
 	}
 }
 
@@ -95,7 +105,15 @@ void Player::draw(ezgame::Screen& screen)
 
 void Player::newMatch(bool hit, bool swap, Arena const& arena, Dome const& dome)
 {
-
+	if (hit) {
+		addHit();
+	}
+	if (swap) {
+		mRole = Role::Contender;
+	else
+		mRole = Role::Defender;
+	}
+	
 }
 
 void Player::newGame(Role role, Arena const& arena, Dome const& dome)

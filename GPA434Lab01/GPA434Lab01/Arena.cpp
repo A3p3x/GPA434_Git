@@ -35,7 +35,7 @@ float Arena::largerSize() const
 	return std::max(mWidth, mHeight);
 }
 
-ezgame::Vect2d Arena::restrictedPosition(ezgame::Vect2d const& position)
+ezgame::Vect2d Arena::restrictedPosition(ezgame::Vect2d const& position) const
 {
 	float rpx = position.x();
 	float rpy = position.y();
@@ -53,7 +53,7 @@ ezgame::Vect2d Arena::restrictedPosition(ezgame::Vect2d const& position)
 	return ezgame::Vect2d(rpx, rpy);
 }
 
-ezgame::Vect2d Arena::warpedPosition(ezgame::Vect2d const& position) 
+ezgame::Vect2d Arena::warpedPosition(ezgame::Vect2d const& position) const 
 {
 	float wpx = position.x();
 	float wpy = position.y();
