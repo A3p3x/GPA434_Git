@@ -1,16 +1,16 @@
 #include "Player.h"
 
 Player::Player(Role role, std::string const& name, ezgame::Color const& color, DirectionKeyMapping const& directionKeyMapping)
-	: mRole(role),
-	mName(name),
-	mSpeed(mDefaultPlayerSpeed),
-	mPlayerShape(mDefaultPlayerRadius, ezgame::Vect2d(0.0f, 0.0f), color),
-	mBorderManagementShape(mDefaultBorderManagementRadius, ezgame::Vect2d(0.0f, 0.0f)),
-	mHitScore(0),
-	mTimeAsDefender(0.0f),
-	mTimeAsContender(0.0f),
-	mBorderManagement(BorderManagement::Restrict),
-	mDirectionKeyMapping(directionKeyMapping)
+	: mRole(role)
+	, mName(name)
+	, mSpeed(mDefaultPlayerSpeed)
+	, mPlayerShape(mDefaultPlayerRadius, ezgame::Vect2d(0.0f, 0.0f), color)
+	, mBorderManagementShape(mDefaultBorderManagementRadius, ezgame::Vect2d(0.0f, 0.0f))
+	, mHitScore(0)
+	, mTimeAsDefender(0.0f)
+	, mTimeAsContender(0.0f)
+	, mBorderManagement(BorderManagement::Restrict)
+	, mDirectionKeyMapping(directionKeyMapping)
 {}
 
 Player::~Player()
@@ -18,7 +18,7 @@ Player::~Player()
 
 Player::Role Player::role() const
 {
-	return ezgame::Random::enumerator (Player::Role::Defender,Player::Role::Contender);
+	return ezgame::Random::enumerator(Player::Role::Defender,Player::Role::Contender);
 }
 
 std::string Player::name() const
@@ -43,12 +43,12 @@ size_t Player::hitScore() const
 
 float Player::timeAsDefender() const
 {
-	if (mRole == Player::Role::Defender) return mTimeAsDefender;
+	return mTimeAsDefender;
 }
 
 float Player::timeAsContender() const
 {
-	if (mRole == Player::Role::Contender) return mTimeAsContender;
+	return mTimeAsContender;
 }
 
 Player::BorderManagement Player::borderManagement() const
@@ -56,8 +56,6 @@ Player::BorderManagement Player::borderManagement() const
 	return mBorderManagement;
 }
 
-
-										// & const ERREUR
 bool Player::isColliding(ezgame::Circle const& otherCircle) const
 {
 	return mPlayerShape.isColliding(otherCircle);
@@ -82,19 +80,20 @@ void Player::tic(ezgame::Keyboard const& keyboard, float elapsedTime, Arena cons
 	ezgame::Vect2d delta = direction * mDefaultPlayerSpeed * elapsedTime;
 	// Mettre à jour la position du joueur
 	ezgame::Vect2d nextPos = mPlayerShape.position() + delta;
-
-	if (mRole == Player::Role::Defender) {
 		
-		if (mBorderManagement == BorderManagement::Restrict) {
-			nextPos = arena.restrictedPosition(nextPos);
-		}
-		else if (mBorderManagement == BorderManagement::Warping) {
-			nextPos = arena.warpedPosition(nextPos);
-		}
-
-		// Mettre à jour la position
-		mPlayerShape.setPosition(nextPos);
+	if (mBorderManagement == BorderManagement::Restrict) {
+		nextPos = arena.restrictedPosition(nextPos);
 	}
+	else if (mBorderManagement == BorderManagement::Warping) {
+		nextPos = arena.warpedPosition(nextPos);
+	}
+
+	// Mettre à jour la position
+	mPlayerShape.setPosition(nextPos);
+	mBorderManagementShape.setPosition(nextPos);
+
+	if (mRole == Player::Role::Defender) mTimeAsDefender += elapsedTime;
+	if (mRole == Player::Role::Contender) mTimeAsContender += elapsedTime;
 }
 
 void Player::draw(ezgame::Screen& screen)
@@ -104,21 +103,52 @@ void Player::draw(ezgame::Screen& screen)
 }
 
 void Player::newMatch(bool hit, bool swap, Arena const& arena, Dome const& dome)
-{
+{   
 	if (hit) {
-		addHit();
+	addHit();
 	}
+
 	if (swap) {
-		mRole = Role::Contender;
-	else
-		mRole = Role::Defender;
+		mRole = (mRole == Role::Defender) ? Role::Contender : Role::Defender;
 	}
-	
+
+	ezgame::Vect2d spawn;
+
+	if (mRole == Role::Defender) {
+		spawn = arena.center();
+	}
+	else {
+		const float dist = 0.5f * arena.smallerSize();
+		
+		ezgame::Vect2d offset = ezgame::Vect2d::fromPolarRandomized(dist,dist);
+		spawn = dome.position() + offset;
+	}
+
+	mPlayerShape.setPosition(spawn);
+	mBorderManagementShape.setPosition(spawn);
 }
 
 void Player::newGame(Role role, Arena const& arena, Dome const& dome)
 {
+	ezgame::Vect2d spawn;
 
+	if (role == Role::Defender) {
+		spawn = arena.center();
+	}
+	else {
+		const float dist = 0.5f * arena.smallerSize();
+
+		ezgame::Vect2d offset = ezgame::Vect2d::fromPolarRandomized(dist, dist);
+		spawn = dome.position() + offset;
+	}
+		role = mRole;
+		mSpeed = mDefaultPlayerSpeed;
+		mPlayerShape.setRadius(Player::mDefaultPlayerRadius);
+		mBorderManagement = BorderManagement::Restrict;
+		mHitScore = 0;
+		mTimeAsDefender = 0.0f;
+		mTimeAsContender = 0.0f;
+		mPlayerShape.setPosition(spawn);
 }
 
 void Player::addHit()
@@ -128,7 +158,7 @@ void Player::addHit()
 
 void Player::removeHit()
 {
-	mHitScore --;
+	if(mHitScore > 0) mHitScore--;
 }
 
 void Player::ajustSize(float relativeSize)

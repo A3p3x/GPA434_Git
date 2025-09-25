@@ -18,27 +18,27 @@ Dome::Dome(Arena const& Arena)
 Dome::~Dome()
 {}
 
-float Dome::radius()
+const float Dome::radius()
 {
 	return mShape.radius();
 }
 
-ezgame::Vect2d Dome::position() 
+ezgame::Vect2d Dome::position() const
 {
 	return mShape.position();
 }
 
-ezgame::Circle Dome::circle()
+ezgame::Circle Dome::circle() const
 {
 	return mShape;
 }
 
-ezgame::Color Dome::color()
+ezgame::Color Dome::color() const
 {
 	return mShape.fillColor();
 }
 
-void Dome::setColor(ezgame::Color color)
+void Dome::setColor(ezgame::Color& color)
 {
 	return mShape.setColors(color, color.lighter(mEdgeColorLighterRatio));
 }

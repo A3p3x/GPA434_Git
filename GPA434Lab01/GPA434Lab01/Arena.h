@@ -28,7 +28,7 @@ public:
 	void draw(ezgame::Screen& screen);
 
 private:
-	float mMinimumSize;
+	float mMinimumSize; // initialiser ici ou ds le constructeur??
 	float mMaximumSize;
 	float mWidth;
 	float mHeight;

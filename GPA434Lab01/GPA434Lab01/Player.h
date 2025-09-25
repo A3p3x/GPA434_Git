@@ -13,7 +13,7 @@ class Player
 {
 
 public:
-	// Enum Class
+	// enum class
 	enum class Role { Defender, Contender };
 	enum class BorderManagement { Restrict, Warping };
 
@@ -26,9 +26,9 @@ public:
 	float timeAsDefender() const;
 	float timeAsContender() const;
 	BorderManagement borderManagement() const;
-	bool isColliding(ezgame::Circle const otherCircle) const;
+	bool isColliding(ezgame::Circle const& otherCircle) const;
 	bool isColliding(Player const& player) const;
-	bool isColliding(Dome& const dome) const;
+	bool isColliding(Dome const& dome) const;
 	void tic(ezgame::Keyboard const& keyboard, float elapsedTime, Arena const& arena);
 	void draw(ezgame::Screen& screen);
 	void newMatch(bool hit, bool swap, Arena const& arena, Dome const& dome);
@@ -41,7 +41,8 @@ public:
 
 
 	// Constructeur
-	Player(Role role, std::string const& name, ezgame::Color const& color, DirectionKeyMapping const& directionKeyMapping);
+	Player(Role role, std::string const& name, ezgame::Color const& color, 
+		   DirectionKeyMapping const& directionKeyMapping);
 
 	// Destructeur
 	~Player();

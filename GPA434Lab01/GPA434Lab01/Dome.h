@@ -14,18 +14,17 @@ public:
 	~Dome();
 
 	// Accesseurs
-	float radius();
-	ezgame::Vect2d position();
-	ezgame::Circle circle();
-	ezgame::Color color();
-	void setColor(ezgame::Color color);
-	// Est-ce que je peut avoir deux fct puclic avec le meme nom Arena/Dome
+	const float radius();
+	ezgame::Vect2d position() const;
+	ezgame::Circle circle() const;
+	ezgame::Color color() const;
+	void setColor(ezgame::Color& color);
 	void tic(ezgame::Timer& elapsedTime);
 	void draw(ezgame::Screen& screen);
 
 private:
-	float mEdgeColorLighterRatio = 0.75f;
-	float mEdgeSize = 1.5f;
+	const float mEdgeColorLighterRatio = 0.75f;
+	const float mEdgeSize = 1.5f;
 	ezgame::Circle mShape;
 };
 #endif // _DOME_H
